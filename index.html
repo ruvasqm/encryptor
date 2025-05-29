@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#333333">
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="apple-touch-icon" href="/vite.svg">
+    <link rel="manifest" href="/manifest.json">
+    <title>Quick Crypto Snippet (JS)</title>
+    <style>
+        body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; margin: 20px; background-color: #f0f2f5; color: #1c1e21; line-height: 1.6; }
+        .container { max-width: 800px; margin: auto; background-color: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        h1, h2 { color: #007bff; border-bottom: 2px solid #007bff; padding-bottom: 10px; margin-bottom: 20px;}
+        textarea, input[type="password"], input[type="text"], input[type="file"] {
+            width: calc(100% - 24px); padding: 12px; margin-bottom: 12px;
+            border: 1px solid #ccd0d5; border-radius: 6px; font-size: 1rem;
+            transition: border-color 0.2s ease-in-out;
+        }
+        textarea:focus, input:focus { border-color: #007bff; outline: none; box-shadow: 0 0 0 2px rgba(0,123,255,.25); }
+        button {
+            background-color: #007bff; color: white; padding: 12px 18px;
+            border: none; border-radius: 6px; cursor: pointer; font-size: 1rem; margin-right: 8px;
+            transition: background-color 0.2s ease-in-out;
+        }
+        button:hover { background-color: #0056b3; }
+        button:disabled { background-color: #cccccc; cursor: not-allowed; }
+        .output, .info { margin-top: 15px; padding: 12px; background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 6px; word-break: break-all; font-family: 'Courier New', Courier, monospace; font-size: 0.9rem; }
+        .error { color: #dc3545; font-weight: bold; }
+        .warning { color: #ffc107; background-color: #fff3cd; border-color: #ffeeba; padding: 10px; border-radius: 4px; }
+        .section { margin-bottom: 35px; padding-bottom: 25px; border-bottom: 1px dashed #e0e0e0; }
+        .section:last-child { border-bottom: none; }
+        label { display: block; margin-bottom: 6px; font-weight: 500; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Quick Crypto Snippet Tool (JS PWA)</h1>
+        <p>All operations are performed client-side in your browser.</p>
+        <div id="app-status">App Ready.</div>
+
+        <!-- AES-GCM Section -->
+        <div class="section">
+            <h2>AES-256-GCM Symmetric Encryption</h2>
+            <label for="aesInputText">Text to Encrypt/Decrypt:</label>
+            <textarea id="aesInputText" rows="5" placeholder="Enter text here"></textarea>
+            <label for="aesPassword">Password:</label>
+            <input type="password" id="aesPassword" placeholder="Your secret password">
+            <button id="aesEncryptBtn">Encrypt (AES)</button>
+            <button id="aesDecryptBtn">Decrypt (AES)</button>
+            <div id="aesOutput" class="output" placeholder="AES result will appear here"></div>
+            <div class="info">AES-GCM uses a password to derive a key. The encrypted output (Base64) includes the necessary salt and nonce.</div>
+        </div>
+
+        <!-- PGP Section -->
+        <div class="section">
+            <h2>OpenPGP Encryption/Decryption</h2>
+            <label for="pgpInputText">Text to Encrypt/Decrypt:</label>
+            <textarea id="pgpInputText" rows="5" placeholder="Enter text for PGP"></textarea>
+            
+            <label for="pgpPassword">Password (for symmetric PGP encryption):</label>
+            <input type="password" id="pgpPassword" placeholder="PGP password (optional)">
+            
+            <label for="pgpPublicKey">Recipient's PGP Public Key (for asymmetric PGP encryption - Armor format):</label>
+            <textarea id="pgpPublicKey" rows="5" placeholder="-----BEGIN PGP PUBLIC KEY BLOCK-----..."></textarea>
+            
+            <label for="pgpPrivateKey">Your PGP Private Key (for decryption - Armor format):</label>
+            <textarea id="pgpPrivateKey" rows="5" placeholder="-----BEGIN PGP PRIVATE KEY BLOCK-----..."></textarea>
+            <label for="pgpPrivateKeyPassphrase">Private Key Passphrase (if any):</label>
+            <input type="password" id="pgpPrivateKeyPassphrase" placeholder="Passphrase for your private key">
+
+            <button id="pgpEncryptBtn">Encrypt (PGP)</button>
+            <button id="pgpDecryptBtn">Decrypt (PGP)</button>
+            <div id="pgpOutput" class="output" placeholder="PGP result will appear here"></div>
+            <div class="info">
+                PGP Encryption: Provide text and either a password (for symmetric encryption) OR a recipient's public key (for asymmetric).
+                PGP Decryption: Provide encrypted PGP message, your private key, and its passphrase (if any).
+            </div>
+        </div>
+
+        <!-- Hashing Section -->
+        <div class="section">
+            <h2>SHA Hashing</h2>
+            <label for="hashInput">Text to Hash:</label>
+            <textarea id="hashInput" rows="3" placeholder="Enter text to hash"></textarea>
+            <button id="sha256Btn">SHA-256</button>
+            <button id="sha1Btn">SHA-1 (Insecure - Demo Only)</button>
+            <div id="hashOutput" class="output" placeholder="Hash output"></div>
+            <div id="sha1Warning" class="warning" style="display:none;">Warning: SHA-1 is cryptographically broken. Do not use for security.</div>
+        </div>
+
+    </div>
+    <script type="module" src="src/main.js"></script></body>
+</html>
