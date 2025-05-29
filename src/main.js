@@ -22,13 +22,110 @@ const pgpPrivateKeyPassphrase = document.getElementById(
 const pgpEncryptBtn = document.getElementById("pgpEncryptBtn");
 const pgpDecryptBtn = document.getElementById("pgpDecryptBtn");
 const pgpOutput = document.getElementById("pgpOutput");
-
+const pgpIdentity = document.getElementById("pgpIdentity");
+const pgpGenPassphrase = document.getElementById("pgpGenPassphrase");
+const pgpGenerateKeyBtn = document.getElementById("pgpGenerateKeyBtn");
+const pgpKeyGenOutput = document.getElementById("pgpKeyGenOutput");
+const pgpKeyGenWarning = document.getElementById("pgpKeyGenWarning");
 // Hash Elements
 const hashInput = document.getElementById("hashInput");
 const sha256Btn = document.getElementById("sha256Btn");
 const sha1Btn = document.getElementById("sha1Btn");
 const hashOutput = document.getElementById("hashOutput");
 const sha1Warning = document.getElementById("sha1Warning");
+// --- Tab Navigation Logic ---
+const tabButtons = document.querySelectorAll(".tab-button");
+const tabContents = document.querySelectorAll(".tab-content");
+const appContainer = document.getElementById("appContainer"); // Get the main app container
+
+function switchTab(targetTabId) {
+	tabContents.forEach((content) => {
+		content.classList.remove("active");
+		if (content.id === targetTabId) {
+			content.classList.add("active");
+		}
+	});
+	tabButtons.forEach((button) => {
+		button.classList.remove("active");
+		if (button.dataset.tab === targetTabId) {
+			button.classList.add("active");
+		}
+	});
+	// Store the active tab in localStorage
+	try {
+		localStorage.setItem("activeCryptoTab", targetTabId);
+	} catch (e) {
+		console.warn("Could not save active tab to localStorage:", e);
+	}
+}
+
+tabButtons.forEach((button) => {
+	button.addEventListener("click", () => {
+		const targetTabId = button.dataset.tab;
+		switchTab(targetTabId);
+	});
+});
+
+// --- Initial App Setup and NoScript Handling ---
+document.addEventListener("DOMContentLoaded", () => {
+	// Show the app container since JS is enabled
+	if (appContainer) {
+		appContainer.style.display = "block";
+	}
+	const mobileNav = document.getElementById("mobileNav");
+	if (mobileNav && appContainer) {
+		// Ensure mobileNav is only shown if appContainer is
+		mobileNav.style.display = window.innerWidth <= 768 ? "block" : "none";
+	}
+
+	// Restore last active tab or default to 'aes'
+	let lastActiveTab = "aes"; // Default tab
+	try {
+		const storedTab = localStorage.getItem("activeCryptoTab");
+		if (storedTab && document.getElementById(storedTab)) {
+			// Check if tab still exists
+			lastActiveTab = storedTab;
+		}
+	} catch (e) {
+		console.warn("Could not read active tab from localStorage:", e);
+	}
+	switchTab(lastActiveTab);
+
+	// PWA Service Worker Registration (moved here to ensure DOM is ready)
+	if ("serviceWorker" in navigator && appContainer) {
+		// Only register if app is shown
+		window.addEventListener("load", () => {
+			// 'load' is better for SW registration
+			navigator.serviceWorker
+				.register("/sw.js")
+				.then((registration) => {
+					console.log(
+						"ServiceWorker registration successful with scope: ",
+						registration.scope,
+					);
+					appStatus.textContent = "App Ready (Offline Capable)";
+				})
+				.catch((error) => {
+					console.log("ServiceWorker registration failed: ", error);
+					appStatus.textContent =
+						"ServiceWorker registration failed. Offline mode may not work.";
+					appStatus.classList.add("error");
+				});
+		});
+	} else if (appContainer) {
+		appStatus.textContent =
+			"ServiceWorker not supported. Offline mode unavailable.";
+	}
+	// ... (rest of your main.js initializations like OpenPGP version check) ...
+});
+
+// Adjust mobile nav visibility on resize
+window.addEventListener("resize", () => {
+	const mobileNav = document.getElementById("mobileNav");
+	if (mobileNav && appContainer && appContainer.style.display === "block") {
+		mobileNav.style.display = window.innerWidth <= 768 ? "block" : "none";
+	}
+});
 
 // --- PWA Service Worker Registration ---
 if ("serviceWorker" in navigator) {
@@ -305,7 +402,60 @@ pgpDecryptBtn.addEventListener("click", async () => {
 		console.error(e);
 	}
 });
+// --- PGP Key Generation ---
+pgpGenerateKeyBtn.addEventListener("click", async () => {
+	try {
+		pgpKeyGenOutput.textContent =
+			"Generating PGP key pair... This may take a moment.";
+		pgpKeyGenOutput.classList.remove("error");
+		pgpKeyGenWarning.style.display = "none";
 
+		const userId = pgpIdentity.value.trim(); // e.g., "User <user@example.com>"
+		const passphrase = pgpGenPassphrase.value;
+
+		if (!userId) {
+			pgpKeyGenOutput.textContent =
+				"Error: Please provide a User ID (Name/Email) for the new key.";
+			pgpKeyGenOutput.classList.add("error");
+			return;
+		}
+		if (!passphrase) {
+			pgpKeyGenOutput.textContent =
+				"Error: Please provide a strong passphrase to protect your new private key.";
+			pgpKeyGenOutput.classList.add("error");
+			return;
+		}
+
+		// Configure key options (can be more complex)
+		const { privateKey, publicKey, revocationCertificate } =
+			await openpgp.generateKey({
+				userIDs: [
+					{
+						name: userId.split("<")[0].trim(),
+						email: userId.includes("<")
+							? userId.split("<")[1].split(">")[0].trim()
+							: undefined,
+					},
+				], // Simple parsing
+				curve: "ed25519", // Modern elliptic curve
+				passphrase,
+			});
+
+		pgpKeyGenOutput.innerHTML = `
+            <strong>Public Key:</strong><br>
+            <textarea rows="8" style="width:100%; font-family:monospace;" readonly>${publicKey}</textarea><br><br>
+            <strong>Private Key (SAVE THIS SECURELY!):</strong><br>
+            <textarea rows="15" style="width:100%; font-family:monospace;" readonly>${privateKey}</textarea><br><br>
+            <strong>Revocation Certificate (Save this too, in case your key is compromised):</strong><br>
+            <textarea rows="5" style="width:100%; font-family:monospace;" readonly>${revocationCertificate}</textarea>
+        `;
+		pgpKeyGenWarning.style.display = "block";
+	} catch (e) {
+		pgpKeyGenOutput.textContent = `Error generating PGP key: ${e.message}`;
+		pgpKeyGenOutput.classList.add("error");
+		console.error(e);
+	}
+});
 // --- SubtleCrypto Hashing Functions ---
 async function hashData(algorithm, data) {
 	const encoder = new TextEncoder();
