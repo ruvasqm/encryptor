@@ -90,33 +90,6 @@ document.addEventListener("DOMContentLoaded", () => {
 		console.warn("Could not read active tab from localStorage:", e);
 	}
 	switchTab(lastActiveTab);
-
-	// PWA Service Worker Registration (moved here to ensure DOM is ready)
-	if ("serviceWorker" in navigator && appContainer) {
-		// Only register if app is shown
-		window.addEventListener("load", () => {
-			// 'load' is better for SW registration
-			navigator.serviceWorker
-				.register("/sw.js")
-				.then((registration) => {
-					console.log(
-						"ServiceWorker registration successful with scope: ",
-						registration.scope,
-					);
-					appStatus.textContent = "App Ready (Offline Capable)";
-				})
-				.catch((error) => {
-					console.log("ServiceWorker registration failed: ", error);
-					appStatus.textContent =
-						"ServiceWorker registration failed. Offline mode may not work.";
-					appStatus.classList.add("error");
-				});
-		});
-	} else if (appContainer) {
-		appStatus.textContent =
-			"ServiceWorker not supported. Offline mode unavailable.";
-	}
-	// ... (rest of your main.js initializations like OpenPGP version check) ...
 });
 
 // Adjust mobile nav visibility on resize
@@ -126,30 +99,6 @@ window.addEventListener("resize", () => {
 		mobileNav.style.display = window.innerWidth <= 768 ? "block" : "none";
 	}
 });
-
-// --- PWA Service Worker Registration ---
-if ("serviceWorker" in navigator) {
-	window.addEventListener("load", () => {
-		navigator.serviceWorker
-			.register("/sw.js")
-			.then((registration) => {
-				console.log(
-					"ServiceWorker registration successful with scope: ",
-					registration.scope,
-				);
-				appStatus.textContent = "App Ready (Offline Capable)";
-			})
-			.catch((error) => {
-				console.log("ServiceWorker registration failed: ", error);
-				appStatus.textContent =
-					"ServiceWorker registration failed. Offline mode may not work.";
-				appStatus.classList.add("error");
-			});
-	});
-} else {
-	appStatus.textContent =
-		"ServiceWorker not supported. Offline mode unavailable.";
-}
 
 // --- Helper Functions ---
 function arrayBufferToHex(buffer) {

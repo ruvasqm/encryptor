@@ -3,14 +3,13 @@ import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
-	// If deploying to GitHub Pages like: https://username.github.io/my-crypto-pwa-js/
-	base: "/encryptor/", // Uncomment and set your repo name
+	base: "/encryptor/",
 	build: {
 		target: "esnext", // Good for modern browser features like SubtleCrypto
 	},
 	plugins: [
 		VitePWA({
-			injectRegister: "null",
+			injectRegister: "auto",
 			includeAssets: ["favicon.ico", "apple-touch-icon.png", "mask-icon.svg"],
 			manifest: {
 				version: "0.0.3",
