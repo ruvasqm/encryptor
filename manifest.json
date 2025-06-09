@@ -1,4 +1,6 @@
 {
+	"version": "0.0.3",
+	"manifest_version": 3,
 	"name": "Quick Crypto PWA (JS)",
 	"short_name": "CryptoJS",
 	"description": "Client-side encryption and hashing tool using OpenPGP.js and SubtleCrypto.",
