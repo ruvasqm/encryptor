@@ -19,7 +19,7 @@ export default defineConfig({
 				short_name: "Encryptor",
 				description:
 					"Client-side encryption and hashing tool using OpenPGP.js and SubtleCrypto.",
-				start_url: ".",
+				start_url: "/encryptor/",
 				display: "standalone",
 				background_color: "#ffffff",
 				theme_color: "#007bff",
