@@ -5,105 +5,362 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#333333">
-  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-  <link rel="apple-touch-icon" href="/vite.svg">
-  <title>Quick Crypto Snippet (JS)</title>
+  <link rel="icon" type="image/svg+xml" href="/lock.svg" />
+  <link rel="apple-touch-icon" href="/lock.svg">
+  <title>Encryptor</title>
   <style>
+    /* ------------------------------------------- */
+    /* Design Tokens (CSS Variables)               */
+    /* ------------------------------------------- */
+
+    /* Default Light Mode Variables (applied to :root globally) */
+    :root {
+      --color-background: #fff;
+      /* Page background */
+      --color-surface: #fff;
+      /* Main widget background */
+      --color-text: #1c1e21;
+      --color-text-secondary: #495057;
+      --color-primary: #442701;
+      /* Accent light mode */
+      --color-primary-hover: #331e00;
+      --color-border: #e0e0e0;
+      --color-input-border: #ccd0d5;
+      --color-input-focus-shadow: rgba(68, 39, 1, 0.25);
+      /* Primary tint */
+      --color-info-bg: #f8f9fa;
+      --color-info-border: #e9ecef;
+      --color-error: #dc3545;
+      --color-warning-text: #664d03;
+      --color-warning-bg: #fff3cd;
+      --color-warning-border: #ffeeba;
+      --color-disabled-bg: #cccccc;
+      --color-tooltip-bg: #555;
+      --color-tooltip-text: #fff;
+      --color-hr: #e0e0e0;
+      /* Dashed line */
+      --color-accordion-bg: #f2f2f2;
+      --color-accordion-border: #e0e0e0;
+
+      /* Specific output text color */
+      --color-output-text: oklch(0.3721 0.1233 142.41);
+
+      /* Spacing & Sizes (remain consistent across themes) */
+      --spacing-xs: 4px;
+      --spacing-sm: 8px;
+      --spacing-md: 12px;
+      --spacing-lg: 16px;
+      --spacing-xl: 24px;
+      --spacing-xxl: 32px;
+
+      --border-radius-sm: 4px;
+      --border-radius-md: 6px;
+      --border-radius-lg: 8px;
+
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 6px 18px rgba(0, 0, 0, 0.15);
+
+      --font-size-xs: 0.75rem;
+      --font-size-sm: 0.9rem;
+      --font-size-base: 1rem;
+      --font-size-lg: 1.15rem;
+      --font-size-xl: 1.5rem;
+      /* for h2 */
+      --font-size-xxl: 2rem;
+      /* for h1 */
+
+      --size-icon-sm: 18px;
+      /* For tooltip 'i' */
+    }
+
+    /* Dark Mode Defaults (from OS preference) */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --color-background: #333;
+        --color-surface: #3a3a3a;
+        --color-text: #e0e0e0;
+        --color-text-secondary: #bbbbbb;
+        --color-primary: #e79325;
+        /* Accent dark mode */
+        --color-primary-hover: #d0821b;
+        --color-border: #555;
+        --color-input-border: #666;
+        --color-input-focus-shadow: rgba(231, 147, 37, 0.25);
+        --color-info-bg: #444;
+        --color-info-border: #555;
+        --color-error: #ff7d8d;
+        --color-warning-text: #ffdc81;
+        --color-warning-bg: #5a4b1e;
+        --color-warning-border: #7a6a2e;
+        --color-disabled-bg: #666;
+        --color-tooltip-bg: #aaa;
+        --color-tooltip-text: #333;
+        --color-hr: #555;
+        --color-accordion-bg: #4a4a4a;
+        --color-accordion-border: #5a5a5a;
+        --color-output-text: oklch(0.7662 0.2491 142.41);
+        /* Use accent color for output text in dark mode */
+      }
+    }
+
+    /* ---------------------------------------------------- */
+    /* Pure CSS Toggle Logic (Overrides prefers-color-scheme) */
+    /* These rules apply to :root directly using :has() */
+    /* ---------------------------------------------------- */
+
+    /* When checkbox is CHECKED, force Dark Mode */
+    :root:has(#dark-mode-toggle-checkbox:checked) {
+      --color-background: #333;
+      --color-surface: #3a3a3a;
+      --color-text: #e0e0e0;
+      --color-text-secondary: #bbbbbb;
+      --color-primary: #e79325;
+      --color-primary-hover: #d0821b;
+      --color-border: #555;
+      --color-input-border: #666;
+      --color-input-focus-shadow: rgba(231, 147, 37, 0.25);
+      --color-info-bg: #444;
+      --color-info-border: #555;
+      --color-error: #ff7d8d;
+      --color-warning-text: #ffdc81;
+      --color-warning-bg: #5a4b1e;
+      --color-warning-border: #7a6a2e;
+      --color-disabled-bg: #666;
+      --color-tooltip-bg: #aaa;
+      --color-tooltip-text: #333;
+      --color-hr: #555;
+      --color-accordion-bg: #4a4a4a;
+      --color-accordion-border: #5a5a5a;
+      --color-output-text: oklch(0.7662 0.2491 142.41);
+    }
+
+    /* When checkbox is UNCHECKED, force Light Mode */
+    :root:has(#dark-mode-toggle-checkbox:not(:checked)) {
+      --color-background: #fff;
+      --color-surface: #fff;
+      --color-text: #1c1e21;
+      --color-text-secondary: #495057;
+      --color-primary: #442701;
+      --color-primary-hover: #331e00;
+      --color-border: #e0e0e0;
+      --color-input-border: #ccd0d5;
+      --color-input-focus-shadow: rgba(68, 39, 1, 0.25);
+      --color-info-bg: #f8f9fa;
+      --color-info-border: #e9ecef;
+      --color-error: #dc3545;
+      --color-warning-text: #664d03;
+      --color-warning-bg: #fff3cd;
+      --color-warning-border: #ffeeba;
+      --color-disabled-bg: #cccccc;
+      --color-tooltip-bg: #555;
+      --color-tooltip-text: #fff;
+      --color-hr: #e0e0e0;
+      --color-accordion-bg: #f2f2f2;
+      --color-accordion-border: #e0e0e0;
+      --color-output-text: oklch(0.3721 0.1233 142.41);
+    }
+
+    /* Global Box-Sizing for consistency */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    /* ------------------------------------------- */
+    /* Base Styles                                 */
+    /* ------------------------------------------- */
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      margin: 20px;
-      background-color: #f0f2f5;
-      color: #1c1e21;
-      line-height: 1.6;
+      margin: var(--spacing-lg);
+      background-color: var(--color-background);
+      color: var(--color-text);
+      line-height: 1.5;
+      transition: background-color 0.3s, color 0.3s;
+      /* Smooth transition for body's theme */
     }
 
     .container {
       max-width: 800px;
       margin: auto;
-      background-color: #fff;
-      padding: 25px;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      background-color: var(--color-surface);
+      padding: var(--spacing-xl);
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--shadow-md);
+      transition: background-color 0.3s, box-shadow 0.3s;
     }
 
-    h1,
+    /* Merged H1 and Tabs Container */
+    .header-tabs-container {
+      display: flex;
+      flex-direction: column;
+      /* Default to column for clarity, overridden by row for desktop below */
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid var(--color-primary);
+      padding-bottom: var(--spacing-sm);
+      margin-bottom: var(--spacing-sm);
+    }
+
+    h1 {
+      font-size: var(--font-size-xxl);
+      color: var(--color-primary);
+      margin: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
     h2 {
-      color: #007bff;
-      border-bottom: 2px solid #007bff;
-      padding-bottom: 10px;
-      margin-bottom: 20px;
+      font-size: var(--font-size-xl);
+      color: var(--color-primary);
+      border-bottom: 2px solid var(--color-primary);
+      padding-bottom: var(--spacing-sm);
+      margin-bottom: var(--spacing-lg);
+      margin-top: 0;
     }
 
     textarea,
     input[type="password"],
     input[type="text"],
     input[type="file"] {
-      width: calc(100% - 24px);
-      padding: 12px;
-      margin-bottom: 12px;
-      border: 1px solid #ccd0d5;
-      border-radius: 6px;
-      font-size: 1rem;
-      transition: border-color 0.2s ease-in-out;
+      width: 100%;
+      padding: var(--spacing-sm);
+      margin-bottom: var(--spacing-sm);
+      border: 1px solid var(--color-input-border);
+      border-radius: var(--border-radius-md);
+      font-size: var(--font-size-base);
+      background-color: var(--color-surface);
+      color: var(--color-text);
+      transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.3s, color 0.3s;
     }
 
     textarea:focus,
     input:focus {
-      border-color: #007bff;
+      border-color: var(--color-primary);
       outline: none;
-      box-shadow: 0 0 0 2px rgba(0, 123, 255, .25);
+      box-shadow: 0 0 0 2px var(--color-input-focus-shadow);
     }
 
     button {
-      background-color: #007bff;
-      color: white;
-      padding: 12px 18px;
+      background-color: var(--color-primary);
+      color: var(--color-tooltip-text);
+      padding: var(--spacing-sm) var(--spacing-lg);
       border: none;
-      border-radius: 6px;
+      border-radius: var(--border-radius-md);
       cursor: pointer;
-      font-size: 1rem;
-      margin-right: 8px;
-      transition: background-color 0.2s ease-in-out;
+      font-size: var(--font-size-base);
+      margin-right: var(--spacing-sm);
+      transition: background-color 0.2s ease-in-out, color 0.3s;
     }
 
     button:hover {
-      background-color: #0056b3;
+      background-color: var(--color-primary-hover);
+      color: var(--color-tooltip-text);
+      /* Ensure text stays visible on hover */
     }
 
+    /* Specific hover for active tab button */
+    .tab-button.active:hover {
+      background-color: transparent;
+      /* Active tab doesn't change background */
+      color: var(--color-primary);
+      /* Keeps its primary color */
+    }
+
+
     button:disabled {
-      background-color: #cccccc;
+      background-color: var(--color-disabled-bg);
       cursor: not-allowed;
     }
 
     .output,
     .info {
-      margin-top: 15px;
-      padding: 12px;
-      background-color: #f8f9fa;
-      border: 1px solid #e9ecef;
-      border-radius: 6px;
+      margin-top: var(--spacing-md);
+      padding: var(--spacing-sm);
+      background-color: var(--color-info-bg);
+      border: 1px solid var(--color-info-border);
+      border-radius: var(--border-radius-md);
       word-break: break-all;
       font-family: 'Courier New', Courier, monospace;
-      font-size: 0.9rem;
+      font-size: var(--font-size-sm);
+      transition: background-color 0.3s, border-color 0.3s;
+    }
+
+    .output {
+      color: var(--color-output-text);
+      /* Apply specific output text color */
     }
 
     .error {
-      color: #dc3545;
+      color: var(--color-error);
       font-weight: bold;
     }
 
     .warning {
-      color: #ffc107;
-      background-color: #fff3cd;
-      border-color: #ffeeba;
-      padding: 10px;
-      border-radius: 4px;
+      color: var(--color-warning-text);
+      background-color: var(--color-warning-bg);
+      border-color: var(--color-warning-border);
+      padding: var(--spacing-sm);
+      border-radius: var(--border-radius-sm);
+      transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+    }
+
+    .tooltip {
+      position: relative;
+      /* Tooltip positioned relative to this span */
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: var(--size-icon-sm);
+      height: var(--size-icon-sm);
+      border-radius: 50%;
+      background-color: var(--color-tooltip-bg);
+      color: var(--color-tooltip-text);
+      font-size: var(--font-size-xs);
+      line-height: 1;
+      cursor: help;
+      transition: background-color 0.3s, color 0.3s;
+      vertical-align: middle;
+      margin-left: var(--spacing-xs);
+    }
+
+    .tooltip:hover::after {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .tooltip::after {
+      content: attr(aria-label);
+      position: absolute;
+      top: calc(100% + var(--spacing-sm));
+      /* Position above the 'i' icon */
+      left: 50%;
+      transform: translateX(-50%);
+      /* Horizontally center the tooltip itself */
+      background-color: var(--color-tooltip-bg);
+      color: var(--color-tooltip-text);
+      border: 1px solid var(--color-tooltip-bg);
+      padding: var(--spacing-xs) var(--spacing-sm);
+      border-radius: var(--border-radius-sm);
+      font-size: var(--font-size-sm);
+      white-space: normal;
+      /* Allow text to wrap */
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
+      pointer-events: none;
+      z-index: 10;
     }
 
     .section {
-      margin-bottom: 35px;
-      padding-bottom: 25px;
-      border-bottom: 1px dashed #e0e0e0;
+      margin-bottom: var(--spacing-xxl);
+      padding-bottom: var(--spacing-xl);
+      border-bottom: 1px dashed var(--color-hr);
     }
 
     .section:last-child {
@@ -112,99 +369,262 @@
 
     label {
       display: block;
-      margin-bottom: 6px;
+      margin-bottom: var(--spacing-xs);
       font-weight: 500;
     }
 
-    /* Tab Styles */
+    hr {
+      border: none;
+      border-top: 1px solid var(--color-hr);
+      margin: var(--spacing-xl) 0;
+    }
+
+    /* ------------------------------------------- */
+    /* Tab Styles                                  */
+    /* ------------------------------------------- */
     .tab-navigation {
       display: flex;
-      border-bottom: 2px solid #007bff;
-      margin-bottom: 20px;
+      flex-grow: 1;
+      /* Allows tabs to take available space */
+      height: 100%;
+      margin-bottom: var(--spacing-lg);
+      /* Space after tabs */
     }
 
     .tab-button {
-      padding: 10px 20px;
+      padding: var(--spacing-sm) var(--spacing-lg);
       cursor: pointer;
       border: none;
       background-color: transparent;
-      font-size: 1rem;
+      font-size: var(--font-size-base);
       font-weight: 500;
-      color: #495057;
+      color: var(--color-text-secondary);
+      border-radius: 0;
       border-bottom: 3px solid transparent;
-      /* For active state */
       margin-bottom: -2px;
-      /* Align with container border */
+      transition: color 0.2s, border-bottom-color 0.2s;
     }
 
     .tab-button.active {
-      color: #007bff;
-      border-bottom-color: #007bff;
+      color: var(--color-primary);
+      border-bottom-color: var(--color-primary);
     }
 
     .tab-content {
       display: none;
-      /* Hidden by default */
     }
 
     .tab-content.active {
       display: block;
-      /* Shown when active */
     }
 
-    /* Mobile Bottom Nav Styles (Example - refine as needed) */
-    .mobile-nav {
+    /* Dark Mode Toggle Checkbox & Label */
+    #dark-mode-toggle-checkbox {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+      pointer-events: none;
+    }
+
+    .dark-mode-toggle-label {
+      background: none;
+      /* No border by default, let header-content handle it for visual coherence if desired */
+      color: var(--color-text);
+      height: fit-content;
+      padding: var(--spacing-xs) var(--spacing-sm);
+      border-radius: var(--border-radius-md);
+      font-size: var(--font-size-sm);
+      cursor: pointer;
+      transition: background-color 0.2s, color 0.2s;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      margin-left: auto;
+      /* Pushes it to the right */
+    }
+
+    .dark-mode-toggle-label:hover {
+      background-color: var(--color-info-bg);
+    }
+
+    /* PGP Key Generation Accordion */
+    .pgp-keygen-accordion details {
+      border: 1px solid var(--color-accordion-border);
+      border-radius: var(--border-radius-md);
+      padding: var(--spacing-md);
+      margin-bottom: var(--spacing-lg);
+      background-color: var(--color-accordion-bg);
+      transition: background-color 0.3s, border-color 0.3s;
+    }
+
+    .pgp-keygen-accordion summary {
+      font-weight: 600;
+      cursor: pointer;
+      padding: var(--spacing-xs) 0;
+      outline: none;
+      color: var(--color-text);
+      display: flex;
+      align-items: center;
+    }
+
+    .pgp-keygen-accordion summary:focus {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    .pgp-keygen-accordion summary::-webkit-details-marker {
       display: none;
-      /* Hidden on desktop */
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background-color: #fff;
-      border-top: 1px solid #e0e0e0;
-      box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
-      z-index: 1000;
     }
 
-    .mobile-nav .tab-navigation {
-      justify-content: space-around;
-      border-bottom: none;
-      margin-bottom: 0;
+    .pgp-keygen-accordion summary::before {
+      content: '►';
+      display: inline-block;
+      margin-right: var(--spacing-sm);
+      transition: transform 0.2s ease-in-out;
+      color: var(--color-primary);
     }
 
-    .mobile-nav .tab-button {
-      flex-grow: 1;
-      text-align: center;
-      padding: 12px 5px;
-      /* Adjust padding */
-      font-size: 0.9rem;
-      border-bottom-width: 0;
-      /* Remove bottom border for mobile nav buttons */
-      border-top: 3px solid transparent;
-      /* Top border for active state */
+    .pgp-keygen-accordion details[open] summary::before {
+      transform: rotate(90deg);
     }
 
-    .mobile-nav .tab-button.active {
-      color: #007bff;
-      border-top-color: #007bff;
-      /* Active border on top for mobile */
-      border-bottom-color: transparent;
+    .pgp-keygen-accordion hr {
+      margin: var(--spacing-lg) 0;
     }
 
-
-    @media (max-width: 768px) {
-      .container>.tab-navigation {
-        /* Hide desktop tabs on mobile */
-        display: none;
+    /* ------------------------------------------- */
+    /* Desktop layout for header and tabs          */
+    /* ------------------------------------------- */
+    @media (min-width: 769px) {
+      .header-tabs-container {
+        flex-direction: row;
+        align-items: flex-end;
+        /* Align tabs to bottom of header */
+        justify-content: space-between;
+        /* Distribute space */
       }
 
-      .mobile-nav {
-        display: block;
+      .header-content {
+        border-bottom: none;
+        /* Only tabs get the border */
+        margin-bottom: 0;
+        /* No extra margin above tabs */
+        flex-grow: 0;
+        /* Don't let header content stretch */
+      }
+
+      .tab-navigation {
+        flex-grow: 1;
+        /* Tabs take remaining space */
+        justify-content: flex-end;
+        /* Push tabs to the right */
+        margin-left: var(--spacing-xl);
+        /* Space between header and tabs */
+        align-self: flex-end;
+        /* Align with the bottom of header-tabs-container */
+        padding-bottom: 0;
+      }
+    }
+
+
+    /* ------------------------------------------- */
+    /* Mobile Styles                               */
+    /* ------------------------------------------- */
+    @media (max-width: 768px) {
+      body {
+        margin: 0;
+        min-height: 100dvh;
       }
 
       .container {
-        padding-bottom: 70px;
+        max-width: 100%;
+        /* Full width */
+        /* No padding around the container */
+        border-radius: 0;
+        /* No border-radius */
+        box-shadow: none;
+        /* No shadow */
+        background-color: var(--color-background);
+        /* Merge surface with body background */
+      }
+
+      .container .tab-navigation {
+        display: none;
+        /* Hide desktop tabs on mobile */
+      }
+
+      .mobile-nav {
+        position: fixed;
+        bottom: 0;
+        width: 100dvw;
+        background-color: var(--color-surface);
+        border-top: 2px solid var(--color-input-border);
+        padding-top: var(--spacing-xs);
+        padding-bottom: var(--spacing-xs);
+      }
+
+      .tab-button {
+        flex-grow: 1;
+        border: none;
+      }
+
+      .tab-navigation {
+        justify-content: space-between;
+        margin: 0;
+      }
+
+      .container {
+        padding-bottom: 60px;
         /* Space for fixed mobile nav */
+        /* Padding inside sections and elements will provide necessary spacing */
+      }
+
+      .section {
+        margin-bottom: 0;
+        padding-bottom: 0;
+      }
+
+      /* Adjust header for mobile column layout */
+      .header-tabs-container {
+        flex-direction: column;
+        align-items: flex-start;
+        border-bottom: 2px solid var(--color-primary);
+        /* Keep header border on mobile */
+        margin-bottom: var(--spacing-lg);
+      }
+
+      .header-content {
+        flex-direction: row;
+        /* Keep h1 and toggle in a row */
+        justify-content: space-between;
+        /* Distribute h1 and toggle */
+        align-items: center;
+        width: 100%;
+        margin-bottom: 0;
+        /* No extra margin here */
+        padding-bottom: 0;
+        border-bottom: none;
+        /* Border is on header-tabs-container now */
+      }
+
+      h1 {
+        font-size: var(--font-size-xl);
+        /* Smaller h1 on mobile */
+        text-align: left;
+        /* Align left within its flex item */
+      }
+
+      /* Fix mobile toggle position */
+      .dark-mode-toggle-label {
+        margin-top: 0;
+        /* No extra top margin */
+        margin-left: auto;
+        /* Pushes to the right within the row */
+      }
+
+      h2 {
+        font-size: var(--font-size-lg);
       }
     }
   </style>
@@ -219,16 +639,28 @@
     </div>
   </noscript>
 
-  <div class="container" id="appContainer" style="display:none;"> <!-- Initially hidden -->
-    <h1>Quick Crypto PWA (JS)</h1>
-    <p>All operations are performed client-side in your browser.</p>
-    <div id="app-status">App Ready.</div>
+  <!-- Dark Mode Checkbox (hidden) -->
+  <input type="checkbox" id="dark-mode-toggle-checkbox" aria-label="Toggle dark mode">
 
-    <!-- Desktop Tab Navigation -->
-    <div class="tab-navigation" id="desktopNav">
-      <button class="tab-button active" data-tab="aes">AES-GCM</button>
-      <button class="tab-button" data-tab="pgp">OpenPGP</button>
-      <button class="tab-button" data-tab="hash">Hashing</button>
+  <form class="container" id="appContainer" style="display:none;">
+    <!-- Initially hidden -->
+
+    <!-- Merged H1 Title and Desktop Tabs -->
+    <div class="header-tabs-container">
+      <div class="header-content">
+        <h1>Encryptor<span class="tooltip"
+            aria-label="All operations are performed client-side in your browser. This application never sends your data to any server.">i</span>
+        </h1>
+        <label for="dark-mode-toggle-checkbox" class="dark-mode-toggle-label">
+          <span id="darkModeIcon">☀️</span>
+        </label>
+      </div>
+      <!-- Desktop Tab Navigation -->
+      <div class="tab-navigation" id="desktopNav">
+        <button class="tab-button active" data-tab="aes">AES-GCM</button>
+        <button class="tab-button" data-tab="pgp">OpenPGP</button>
+        <button class="tab-button" data-tab="hash">Hashing</button>
+      </div>
     </div>
 
     <!-- Tab Content Area -->
@@ -236,7 +668,6 @@
       <!-- AES-GCM Section -->
       <div id="aes" class="tab-content active section">
         <h2>AES-256-GCM Symmetric Encryption</h2>
-        <!-- ... (AES content from previous HTML) ... -->
         <label for="aesInputText">Text to Encrypt/Decrypt:</label>
         <textarea id="aesInputText" rows="5" placeholder="Enter text here"></textarea>
         <label for="aesPassword">Password:</label>
@@ -250,27 +681,39 @@
       <!-- PGP Section -->
       <div id="pgp" class="tab-content section">
         <h2>OpenPGP Encryption/Decryption & Key Generation</h2>
-        <label for="pgpIdentity">Your Name/Email (for new key generation, e.g., "User <user@example.com>"):</label>
-        <input type="text" id="pgpIdentity" placeholder="User <user@example.com>">
-        <label for="pgpGenPassphrase">Passphrase for New Key (IMPORTANT!):</label>
-        <input type="password" id="pgpGenPassphrase" placeholder="Secure passphrase for your new private key">
-        <button id="pgpGenerateKeyBtn">Generate New PGP Key Pair</button>
-        <div id="pgpKeyGenOutput" class="output" style="margin-top:10px;"
-          placeholder="Generated keys will appear here. SAVE THEM!"></div>
-        <div class="warning" id="pgpKeyGenWarning" style="display:none; margin-top:10px;">
-          <strong>IMPORTANT:</strong> You have generated a new PGP key pair.
-          <ul>
-            <li><strong>SAVE BOTH the Private Key and Public Key immediately.</strong> Copy them to a secure, offline
-              location.</li>
-            <li>The private key is protected by the passphrase you entered. You'll need this passphrase to use the
-              private key.</li>
-            <li>If you lose the private key or its passphrase, you will NOT be able to decrypt messages encrypted for
-              this key.</li>
-            <li>Share your PUBLIC key with others so they can send you encrypted messages. Keep your PRIVATE key secret!
-            </li>
-          </ul>
+
+        <!-- PGP Key Generation Accordion -->
+        <div class="pgp-keygen-accordion">
+          <details>
+            <summary>Generate New PGP Key Pair</summary>
+            <div style="margin-top: var(--spacing-sm);">
+              <label for="pgpIdentity">Your Name/Email (e.g., "User <user@example.com>"):</label>
+              <input type="text" id="pgpIdentity" placeholder="User <user@example.com>">
+              <label for="pgpGenPassphrase">Passphrase for New Key (IMPORTANT!):</label>
+              <input type="password" id="pgpGenPassphrase" placeholder="Secure passphrase for your new private key">
+              <button id="pgpGenerateKeyBtn">Generate Key Pair</button>
+              <div id="pgpKeyGenOutput" class="output" style="margin-top:var(--spacing-md);"
+                placeholder="Generated keys will appear here. SAVE THEM!"></div>
+              <div class="warning" id="pgpKeyGenWarning" style="display:none; margin-top:var(--spacing-md);">
+                <strong>IMPORTANT:</strong> You have generated a new PGP key pair.
+                <ul>
+                  <li><strong>SAVE BOTH the Private Key and Public Key immediately.</strong> Copy them to a secure,
+                    offline
+                    location.</li>
+                  <li>The private key is protected by the passphrase you entered. You'll need this passphrase to use the
+                    private key.</li>
+                  <li>If you lose the private key or its passphrase, you will NOT be able to decrypt messages encrypted
+                    for
+                    this key.</li>
+                  <li>Share your PUBLIC key with others so they can send you encrypted messages. Keep your PRIVATE key
+                    secret!
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </details>
         </div>
-        <hr style="margin: 20px 0;">
+        <hr>
 
         <label for="pgpInputText">Text to Encrypt/Decrypt:</label>
         <textarea id="pgpInputText" rows="5" placeholder="Enter text for PGP"></textarea>
@@ -298,17 +741,16 @@
       <!-- Hashing Section -->
       <div id="hash" class="tab-content section">
         <h2>SHA Hashing</h2>
-        <!-- ... (Hashing content from previous HTML) ... -->
         <label for="hashInput">Text to Hash:</label>
         <textarea id="hashInput" rows="3" placeholder="Enter text to hash"></textarea>
         <button id="sha256Btn">SHA-256</button>
-        <button id="sha1Btn">SHA-1 (Insecure - Demo Only)</button>
+        <button id="sha1Btn">SHA-1 (Insecure)</button>
         <div id="hashOutput" class="output" placeholder="Hash output"></div>
         <div id="sha1Warning" class="warning" style="display:none;">Warning: SHA-1 is cryptographically broken. Do not
           use for security.</div>
       </div>
     </div> <!-- End Tab Container -->
-  </div> <!-- End App Container -->
+  </form> <!-- End App Container (now a form) -->
 
   <!-- Mobile Bottom Navigation -->
   <nav class="mobile-nav" id="mobileNav">
@@ -318,7 +760,118 @@
       <button class="tab-button" data-tab="hash">Hash</button>
     </div>
   </nav>
+
   <script type="module" src="src/main.js"></script>
+  <script>
+    // -------------------------------------------
+    // Dark Mode Toggle & Initial Setup JS
+    // This JS only controls the checkbox state and icon, CSS handles the theme.
+    // -------------------------------------------
+    document.addEventListener('DOMContentLoaded', () => {
+      const appContainer = document.getElementById('appContainer');
+      const darkModeCheckbox = document.getElementById('dark-mode-toggle-checkbox');
+      const darkModeIcon = document.getElementById('darkModeIcon');
+      const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+
+      // Function to update visual indicators and localStorage
+      const updateThemeIndicators = (isDarkMode) => {
+        if (isDarkMode) {
+          darkModeIcon.textContent = '🌙'; // Moon icon for dark mode
+          themeColorMeta.setAttribute('content', '#333333');
+        } else {
+          darkModeIcon.textContent = '☀️'; // Sun icon for light mode
+          themeColorMeta.setAttribute('content', '#ffffff'); // White for light mode
+        }
+        localStorage.setItem('darkMode', isDarkMode ? 'true' : 'false');
+      };
+
+      // Set initial checkbox state and update indicators
+      const initializeTheme = () => {
+        const savedDarkMode = localStorage.getItem('darkMode');
+        let isDarkMode = false; // Default to light
+
+        if (savedDarkMode !== null) {
+          isDarkMode = savedDarkMode === 'true';
+        } else {
+          // If no saved preference, use system preference
+          isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        }
+
+        darkModeCheckbox.checked = isDarkMode; // Set checkbox state
+        updateThemeIndicators(isDarkMode); // Update icon and meta
+      };
+
+      initializeTheme(); // Call on load
+
+      // Listen for system theme changes (if no explicit user preference saved)
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+        // Only react to system changes if user hasn't explicitly set a preference
+        if (localStorage.getItem('darkMode') === null) {
+          darkModeCheckbox.checked = event.matches; // Update checkbox
+          updateThemeIndicators(event.matches); // Update icon/meta
+        }
+      });
+
+      // Listen for manual toggle via checkbox
+      darkModeCheckbox.addEventListener('change', () => {
+        updateThemeIndicators(darkModeCheckbox.checked);
+      });
+
+      // -------------------------------------------
+      // Tab Navigation Logic (simplified from common patterns)
+      // -------------------------------------------
+      const handleTabClick = (targetTabId) => {
+        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+        document.querySelectorAll(`[data-tab="${targetTabId}"]`).forEach(btn => btn.classList.add('active'));
+        document.getElementById(targetTabId).classList.add('active');
+
+        try {
+          localStorage.setItem("activeCryptoTab", targetTabId);
+        } catch (e) {
+          console.warn("Could not save active tab to localStorage:", e);
+        }
+      };
+
+      document.querySelectorAll('.tab-button').forEach(button => {
+        button.addEventListener('click', () => {
+          handleTabClick(button.dataset.tab);
+        });
+      });
+
+      // Initial app visibility and tab setup
+      if (appContainer) {
+        appContainer.style.display = "block"; // Show app container if JS is enabled
+      }
+      const mobileNav = document.getElementById("mobileNav");
+      // Check window width explicitly to set initial display of mobile nav
+      if (mobileNav) {
+        mobileNav.style.display = window.innerWidth <= 768 ? "block" : "none";
+      }
+
+      let lastActiveTab = "aes";
+      try {
+        const storedTab = localStorage.getItem("activeCryptoTab");
+        if (storedTab && document.getElementById(storedTab)) {
+          lastActiveTab = storedTab;
+        }
+      } catch (e) {
+        console.warn("Could not read active tab from localStorage:", e);
+      }
+      handleTabClick(lastActiveTab);
+    });
+
+    // Adjust mobile nav visibility on resize
+    window.addEventListener("resize", () => {
+      const mobileNav = document.getElementById("mobileNav");
+      // Ensure appContainer is visible before trying to toggle mobileNav
+      const appContainer = document.getElementById("appContainer");
+      if (mobileNav && appContainer && appContainer.style.display === "block") {
+        mobileNav.style.display = window.innerWidth <= 768 ? "block" : "none";
+      }
+    });
+  </script>
 </body>
 
 </html>

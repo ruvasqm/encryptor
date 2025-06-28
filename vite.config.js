@@ -24,13 +24,13 @@ export default defineConfig({
 				theme_color: "#007bff",
 				icons: [
 					{
-						src: "vite.svg",
+						src: "lock.svg",
 						sizes: "192x192",
 						type: "image/svg+xml",
 						purpose: "any maskable",
 					},
 					{
-						src: "vite.svg",
+						src: "lock.svg",
 						sizes: "512x512",
 						type: "image/svg+xml",
 						purpose: "any maskable",

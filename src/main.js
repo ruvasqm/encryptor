@@ -2,7 +2,7 @@
 import * as openpgp from "openpgp/lightweight";
 
 // --- DOM Elements ---
-const appStatus = document.getElementById("app-status");
+const appContainer = document.getElementById("appContainer"); // Still the form
 
 // AES Elements
 const aesInputText = document.getElementById("aesInputText");
@@ -27,77 +27,20 @@ const pgpGenPassphrase = document.getElementById("pgpGenPassphrase");
 const pgpGenerateKeyBtn = document.getElementById("pgpGenerateKeyBtn");
 const pgpKeyGenOutput = document.getElementById("pgpKeyGenOutput");
 const pgpKeyGenWarning = document.getElementById("pgpKeyGenWarning");
+
 // Hash Elements
 const hashInput = document.getElementById("hashInput");
 const sha256Btn = document.getElementById("sha256Btn");
 const sha1Btn = document.getElementById("sha1Btn");
 const hashOutput = document.getElementById("hashOutput");
 const sha1Warning = document.getElementById("sha1Warning");
-// --- Tab Navigation Logic ---
-const tabButtons = document.querySelectorAll(".tab-button");
-const tabContents = document.querySelectorAll(".tab-content");
-const appContainer = document.getElementById("appContainer"); // Get the main app container
 
-function switchTab(targetTabId) {
-	tabContents.forEach((content) => {
-		content.classList.remove("active");
-		if (content.id === targetTabId) {
-			content.classList.add("active");
-		}
-	});
-	tabButtons.forEach((button) => {
-		button.classList.remove("active");
-		if (button.dataset.tab === targetTabId) {
-			button.classList.add("active");
-		}
-	});
-	// Store the active tab in localStorage
-	try {
-		localStorage.setItem("activeCryptoTab", targetTabId);
-	} catch (e) {
-		console.warn("Could not save active tab to localStorage:", e);
-	}
-}
-
-tabButtons.forEach((button) => {
-	button.addEventListener("click", () => {
-		const targetTabId = button.dataset.tab;
-		switchTab(targetTabId);
-	});
-});
-
-// --- Initial App Setup and NoScript Handling ---
-document.addEventListener("DOMContentLoaded", () => {
-	// Show the app container since JS is enabled
-	if (appContainer) {
-		appContainer.style.display = "block";
-	}
-	const mobileNav = document.getElementById("mobileNav");
-	if (mobileNav && appContainer) {
-		// Ensure mobileNav is only shown if appContainer is
-		mobileNav.style.display = window.innerWidth <= 768 ? "block" : "none";
-	}
-
-	// Restore last active tab or default to 'aes'
-	let lastActiveTab = "aes"; // Default tab
-	try {
-		const storedTab = localStorage.getItem("activeCryptoTab");
-		if (storedTab && document.getElementById(storedTab)) {
-			// Check if tab still exists
-			lastActiveTab = storedTab;
-		}
-	} catch (e) {
-		console.warn("Could not read active tab from localStorage:", e);
-	}
-	switchTab(lastActiveTab);
-});
-
-// Adjust mobile nav visibility on resize
-window.addEventListener("resize", () => {
-	const mobileNav = document.getElementById("mobileNav");
-	if (mobileNav && appContainer && appContainer.style.display === "block") {
-		mobileNav.style.display = window.innerWidth <= 768 ? "block" : "none";
-	}
+// --- Form Submission Prevention ---
+// Add event listener to the form to prevent default submission
+appContainer.addEventListener("submit", (event) => {
+	event.preventDefault(); // Prevent the default form submission behavior
+	console.log("Form submission prevented.");
+	// No action needed here, as individual button click handlers manage operations.
 });
 
 // --- Helper Functions ---
@@ -156,7 +99,8 @@ async function deriveKeyFromPasswordAES(password, salt) {
 	);
 }
 
-aesEncryptBtn.addEventListener("click", async () => {
+aesEncryptBtn.addEventListener("click", async (event) => {
+	event.preventDefault(); // Prevent form submission
 	try {
 		aesOutput.textContent = "Encrypting...";
 		aesOutput.classList.remove("error");
@@ -197,7 +141,8 @@ aesEncryptBtn.addEventListener("click", async () => {
 	}
 });
 
-aesDecryptBtn.addEventListener("click", async () => {
+aesDecryptBtn.addEventListener("click", async (event) => {
+	event.preventDefault(); // Prevent form submission
 	try {
 		aesOutput.textContent = "Decrypting...";
 		aesOutput.classList.remove("error");
@@ -235,7 +180,8 @@ aesDecryptBtn.addEventListener("click", async () => {
 });
 
 // --- OpenPGP.js Functions ---
-pgpEncryptBtn.addEventListener("click", async () => {
+pgpEncryptBtn.addEventListener("click", async (event) => {
+	event.preventDefault(); // Prevent form submission
 	try {
 		pgpOutput.textContent = "Encrypting with PGP...";
 		pgpOutput.classList.remove("error");
@@ -292,7 +238,8 @@ pgpEncryptBtn.addEventListener("click", async () => {
 	}
 });
 
-pgpDecryptBtn.addEventListener("click", async () => {
+pgpDecryptBtn.addEventListener("click", async (event) => {
+	event.preventDefault(); // Prevent form submission
 	try {
 		pgpOutput.textContent = "Decrypting PGP message...";
 		pgpOutput.classList.remove("error");
@@ -340,19 +287,16 @@ pgpDecryptBtn.addEventListener("click", async () => {
 		const { data: decrypted, signatures } = await openpgp.decrypt(options);
 
 		pgpOutput.textContent = `Decrypted: ${decrypted}`;
-		// You could also verify signatures if present:
-		// if (signatures && signatures.length > 0 && signatures[0].verified) {
-		//    const keyid = signatures[0].keyID.toHex();
-		//    console.log(`Signed by key id ${keyid}`);
-		// }
 	} catch (e) {
 		pgpOutput.textContent = `Error: PGP Decryption failed. ${e.message}`;
 		pgpOutput.classList.add("error");
 		console.error(e);
 	}
 });
+
 // --- PGP Key Generation ---
-pgpGenerateKeyBtn.addEventListener("click", async () => {
+pgpGenerateKeyBtn.addEventListener("click", async (event) => {
+	event.preventDefault(); // Prevent form submission
 	try {
 		pgpKeyGenOutput.textContent =
 			"Generating PGP key pair... This may take a moment.";
@@ -375,7 +319,6 @@ pgpGenerateKeyBtn.addEventListener("click", async () => {
 			return;
 		}
 
-		// Configure key options (can be more complex)
 		const { privateKey, publicKey, revocationCertificate } =
 			await openpgp.generateKey({
 				userIDs: [
@@ -385,14 +328,14 @@ pgpGenerateKeyBtn.addEventListener("click", async () => {
 							? userId.split("<")[1].split(">")[0].trim()
 							: undefined,
 					},
-				], // Simple parsing
+				],
 				curve: "ed25519", // Modern elliptic curve
 				passphrase,
 			});
 
 		pgpKeyGenOutput.innerHTML = `
             <strong>Public Key:</strong><br>
-            <textarea rows="8" style="width:100%; font-family:monospace;" readonly>${publicKey}</textarea><br><br>
+            <textarea id="generatedPublicKey" rows="8" style="width:100%; font-family:monospace;" readonly>${publicKey}</textarea><br><br>
             <strong>Private Key (SAVE THIS SECURELY!):</strong><br>
             <textarea rows="15" style="width:100%; font-family:monospace;" readonly>${privateKey}</textarea><br><br>
             <strong>Revocation Certificate (Save this too, in case your key is compromised):</strong><br>
@@ -405,6 +348,7 @@ pgpGenerateKeyBtn.addEventListener("click", async () => {
 		console.error(e);
 	}
 });
+
 // --- SubtleCrypto Hashing Functions ---
 async function hashData(algorithm, data) {
 	const encoder = new TextEncoder();
@@ -413,7 +357,8 @@ async function hashData(algorithm, data) {
 	return arrayBufferToHex(hashBuffer);
 }
 
-sha256Btn.addEventListener("click", async () => {
+sha256Btn.addEventListener("click", async (event) => {
+	event.preventDefault(); // Prevent form submission
 	try {
 		sha1Warning.style.display = "none";
 		const data = hashInput.value;
@@ -430,7 +375,8 @@ sha256Btn.addEventListener("click", async () => {
 	}
 });
 
-sha1Btn.addEventListener("click", async () => {
+sha1Btn.addEventListener("click", async (event) => {
+	event.preventDefault(); // Prevent form submission
 	try {
 		sha1Warning.style.display = "block";
 		const data = hashInput.value;
@@ -447,12 +393,14 @@ sha1Btn.addEventListener("click", async () => {
 	}
 });
 
-// Initial status
+// Initial status for SubtleCrypto API
 if (window.crypto && window.crypto.subtle) {
 	console.log("SubtleCrypto API available.");
 } else {
-	appStatus.textContent =
-		"Error: SubtleCrypto API not available. This app requires a modern browser with HTTPS.";
-	appStatus.classList.add("error");
-	// Disable buttons or show a more prominent error
+	// There's no specific appStatus element anymore, might log to console or show a generic message
+	console.error(
+		"Error: SubtleCrypto API not available. This app requires a modern browser with HTTPS.",
+	);
+	// Potentially disable crypto-related buttons if you want a visual indication
+	// e.g., aesEncryptBtn.disabled = true;
 }

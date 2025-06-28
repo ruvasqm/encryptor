@@ -12,7 +12,7 @@ const urlsToCache = [
 	// For a simple approach, we cache the entry points.
 	// The browser will fetch other JS chunks as needed.
 	"/manifest.json",
-	"/vite.svg", // Your app icon
+	"/lock.svg", // Your app icon
 ];
 
 self.addEventListener("install", (event) => {

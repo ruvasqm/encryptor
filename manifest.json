@@ -1,8 +1,8 @@
 {
-	"version": "0.0.3",
+	"version": "0.0.4",
 	"manifest_version": 3,
-	"name": "Quick Crypto PWA (JS)",
-	"short_name": "CryptoJS",
+	"name": "Encryptor",
+	"short_name": "Encryptor",
 	"description": "Client-side encryption and hashing tool using OpenPGP.js and SubtleCrypto.",
 	"start_url": "/encryptor/",
 	"display": "standalone",
@@ -10,13 +10,13 @@
 	"theme_color": "#007bff",
 	"icons": [
 		{
-			"src": "vite.svg",
+			"src": "lock.svg",
 			"sizes": "192x192",
 			"type": "image/svg+xml",
 			"purpose": "any maskable"
 		},
 		{
-			"src": "vite.svg",
+			"src": "lock.svg",
 			"sizes": "512x512",
 			"type": "image/svg+xml",
 			"purpose": "any maskable"
